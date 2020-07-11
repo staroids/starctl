@@ -1,0 +1,29 @@
+name: Publish release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  publish-release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout latest code
+      uses: actions/checkout@v2
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+      # access it through ${{ steps.get_version.outputs.VERSION }}
+    - uses: actions/setup-go@v2
+      with:
+        go-version: '^1.14.4' # The Go version to download (if necessary) and use.
+    - name: Test
+      run: |
+        make test
+    - name: Build
+      run: |
+        make buildlinux
+    - name: Build docker image
+      run: |-
+        docker build -t "gcr.io/${{ secrets.GCP_PROJECT }}/${{ github.event.repository.name }}:${{ steps.get_version.outputs.VERSION }}" .
