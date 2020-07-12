@@ -30,7 +30,7 @@ func PrintClusters(cluster *[]v1.StaroidCluster, orgs *[]v1.StaroidOrg) {
 }
 
 func ClusterCmd(args []string) {
-	getCmd := flag.NewFlagSet("get", flag.ExitOnError)
+	getCmd := flag.NewFlagSet("cluster", flag.ExitOnError)
 
 	if len(args) < 1 {
 		ClusterCmdUsage()

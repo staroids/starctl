@@ -82,6 +82,12 @@ func main() {
 	switch os.Args[1] {
 	case "cluster":
 		ClusterCmd(os.Args[2:])
+	case "namespace":
+		NamespaceCmd(os.Args[2:])
+	case "shell":
+		ShellCmd(os.Args[2:])
+	case "tunnel":
+		TunnelCmd(os.Args[2:])
 	case "version":
 		fmt.Printf("%s\n", constants.Version)
 		os.Exit(0)
