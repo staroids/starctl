@@ -8,11 +8,29 @@ TBD
 
 ## Usage
 
+### Cluster
 ```
 export STAROID_ACCESS_TOKEN=xxxxxxxxxx
 
 # list all clusters
 starctl cluster list
+```
+
+### Tunnel
+
+```
+# Open a tunnel to Kubernetets api proxy.
+# Local port 8001 (can change using --kube-proxy-port) will be connected to the Kubernetes API of the cluster.
+# (Tunnel 'kubectl --server localhost:8001' will )
+
+starctl tunnel --kube-proxy
+
+
+# Open tunnels to services running clustter.
+# (traffic to Local port 7000 will be forwarded to 'my-service1:8000' in the cluster, in following example)
+
+starctl tunnel 7000:my-service1:8000 1234:my-service2:5678 ...
+
 ```
 
 ## Environment variables
