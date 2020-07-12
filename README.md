@@ -19,7 +19,7 @@ starctl cluster list
 
 | Variable name | Optional | Description |
 | --------- | -------- | --------- |
-| STAROID_ACCESS_TOKEN | Required | Access token string. (e.g. v0hsolmc6vu1tpnp4vtv8c8solvgt0) Get from [Access Tokens menu](https://staroid.com/settings/accesstokens). |
+| STAROID_ACCESS_TOKEN | Required | Access token string. (e.g. `v0hsolmc6vu1tpnp4vtv8c8solvgt0`) Get from [Access Tokens menu](https://staroid.com/settings/accesstokens). |
 
 ## Build
 
