@@ -93,7 +93,7 @@ func TunnelCmd(args []string) {
 	}
 
 	if shellService == nil {
-		fmt.Printf("Shell service is not found\n", err)
+		fmt.Printf("Shell service is not found\n")
 		os.Exit(1)
 	}
 
