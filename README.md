@@ -16,6 +16,16 @@ export STAROID_ACCESS_TOKEN=xxxxxxxxxx
 starctl cluster list
 ```
 
+### Namespace
+
+```
+# list all namespaces in the clusuter
+starctl namespace -org <org> -cluster <cluster> list
+
+# create a namespace
+starctl namespace -org <org> -cluster <cluster> create <alias>
+```
+
 ### Tunnel
 
 ```
