@@ -12,7 +12,7 @@ import (
 )
 
 func NamespaceCmdUsage() {
-	fmt.Fprintf(os.Stdout, "namespace [create|list|get|start|stop|delete] <alias> [flags]\n")
+	fmt.Fprintf(os.Stdout, "namespace [flags] [create|list|get|start|stop|delete] <alias>\n")
 }
 
 func PrintNamespaces(cluster *[]v1.StaroidCluster, orgs *[]v1.StaroidOrg) {
@@ -326,5 +326,4 @@ func NamespaceCmd(args []string) {
 		NamespaceCmdUsage()
 		os.Exit(1)
 	}
-
 }

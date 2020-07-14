@@ -31,42 +31,24 @@ func (v *V1) Org() *OrgRequestBuilder {
 }
 
 func (v *V1) NewGetRequest(path string) (*http.Request, error) {
-	url := fmt.Sprintf("%s%s", v.Auth.ApiServer(), path)
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Authorization", fmt.Sprintf("token %s", v.Auth.AccessToken()))
-	return req, nil
+	return v.NewRequest("GET", path, nil)
 }
 
 func (v *V1) NewDeleteRequest(path string) (*http.Request, error) {
-	url := fmt.Sprintf("%s%s", v.Auth.ApiServer(), path)
-	req, err := http.NewRequest("DELETE", url, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Authorization", fmt.Sprintf("token %s", v.Auth.AccessToken()))
-	return req, nil
+	return v.NewRequest("DELETE", path, nil)
 }
 
 func (v *V1) NewPostRequest(path string, body io.Reader) (*http.Request, error) {
-	url := fmt.Sprintf("%s%s", v.Auth.ApiServer(), path)
-	req, err := http.NewRequest("POST", url, body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Set("Authorization", fmt.Sprintf("token %s", v.Auth.AccessToken()))
-	req.Header.Set("Content-Type", "application/json")
-	return req, nil
+	return v.NewRequest("POST", path, body)
 }
 
 func (v *V1) NewPutRequest(path string, body io.Reader) (*http.Request, error) {
+	return v.NewRequest("PUT", path, body)
+}
+
+func (v *V1) NewRequest(method string, path string, body io.Reader) (*http.Request, error) {
 	url := fmt.Sprintf("%s%s", v.Auth.ApiServer(), path)
-	req, err := http.NewRequest("PUT", url, body)
+	req, err := http.NewRequest(method, url, body)
 	if err != nil {
 		return nil, err
 	}
