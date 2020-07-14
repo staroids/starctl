@@ -1,8 +1,8 @@
 package v1
 
 import (
-	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/staroids/starctl/pkg/auth"
@@ -31,13 +31,30 @@ func (v *V1) Org() *OrgRequestBuilder {
 }
 
 func (v *V1) NewGetRequest(path string) (*http.Request, error) {
+	return v.NewRequest("GET", path, nil)
+}
+
+func (v *V1) NewDeleteRequest(path string) (*http.Request, error) {
+	return v.NewRequest("DELETE", path, nil)
+}
+
+func (v *V1) NewPostRequest(path string, body io.Reader) (*http.Request, error) {
+	return v.NewRequest("POST", path, body)
+}
+
+func (v *V1) NewPutRequest(path string, body io.Reader) (*http.Request, error) {
+	return v.NewRequest("PUT", path, body)
+}
+
+func (v *V1) NewRequest(method string, path string, body io.Reader) (*http.Request, error) {
 	url := fmt.Sprintf("%s%s", v.Auth.ApiServer(), path)
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest(method, url, body)
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Add("Authorization", fmt.Sprintf("token %s", v.Auth.AccessToken()))
+	req.Header.Set("Authorization", fmt.Sprintf("token %s", v.Auth.AccessToken()))
+	req.Header.Set("Content-Type", "application/json")
 	return req, nil
 }
 
@@ -45,156 +62,22 @@ func (v *V1) HttpClient() *http.Client {
 	return &http.Client{}
 }
 
-type ClusterRequestBuilder struct {
-	v1       *V1
-	Provider string
-	Org      string
-}
-
-func (b *ClusterRequestBuilder) WithOrg(provider string, org string) *ClusterRequestBuilder {
-	b.Provider = provider
-	b.Org = org
-	return b
-}
-
-func (b *ClusterRequestBuilder) GetAll() (*[]StaroidCluster, error) {
-	if b.Provider == "" || b.Org == "" {
-		return nil, fmt.Errorf("Org information is not set. call withOrg()")
+func GetApiErrorFromResponse(resp *http.Response, customErrorMessage map[int]string) error {
+	message := map[int]string{
+		404: "Not found",
+		402: "Not authorized",
 	}
 
-	client := b.v1.HttpClient()
-	req, err := b.v1.NewGetRequest(fmt.Sprintf("/orgs/%s/%s/vc", b.Provider, b.Org))
-	if err != nil {
-		return nil, err
-	}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	// parse json response
-	clusters := make([]StaroidCluster, 0)
-	decoder := json.NewDecoder(resp.Body)
-	err = decoder.Decode(&clusters)
-	if err != nil {
-		return nil, err
+	for k, v := range customErrorMessage {
+		message[k] = v
 	}
 
-	return &clusters, nil
-}
-
-type NamespaceRequestBuilder struct {
-	v1          *V1
-	Provider    string
-	Org         string
-	ClusterID   int64
-	NamespaceID int64
-	Name        string // kubernetes namespace
-}
-
-func (b *NamespaceRequestBuilder) WithOrg(provider string, org string) *NamespaceRequestBuilder {
-	b.Provider = provider
-	b.Org = org
-	return b
-}
-
-func (b *NamespaceRequestBuilder) WithClusterID(clusterID int64) *NamespaceRequestBuilder {
-	b.ClusterID = clusterID
-	return b
-}
-
-func (b *NamespaceRequestBuilder) WithNamespaceID(namespaceID int64) *NamespaceRequestBuilder {
-	b.NamespaceID = namespaceID
-	return b
-}
-
-func (b *NamespaceRequestBuilder) WithName(name string) *NamespaceRequestBuilder {
-	b.Name = name
-	return b
-}
-
-func (b *NamespaceRequestBuilder) GetAll() (*[]StaroidNamespace, error) {
-	if b.Provider == "" || b.Org == "" {
-		return nil, fmt.Errorf("Org information is not set. call withOrg()")
+	if resp.StatusCode == 200 {
+		return nil
 	}
 
-	if b.ClusterID == int64(0) {
-		return nil, fmt.Errorf("Cluster ID is not set. call withClusterID()")
+	if m, ok := message[resp.StatusCode]; ok {
+		return fmt.Errorf("%d %s", resp.StatusCode, m)
 	}
-
-	client := b.v1.HttpClient()
-	req, err := b.v1.NewGetRequest(fmt.Sprintf("/orgs/%s/%s/vc/%d/instance", b.Provider, b.Org, b.ClusterID))
-	if err != nil {
-		return nil, err
-	}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	// parse json response
-	namespaces := make([]StaroidNamespace, 0)
-	decoder := json.NewDecoder(resp.Body)
-	err = decoder.Decode(&namespaces)
-	if err != nil {
-		return nil, err
-	}
-
-	return &namespaces, nil
-}
-
-func (b *NamespaceRequestBuilder) GetAllResources() (*StaroidNamespaceResources, error) {
-	if b.Name == "" {
-		return nil, fmt.Errorf("Name is not set. call withName()")
-	}
-
-	client := b.v1.HttpClient()
-	req, err := b.v1.NewGetRequest(fmt.Sprintf("/namespace/%s", b.Name))
-	if err != nil {
-		return nil, err
-	}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	// parse json response
-	resources := StaroidNamespaceResources{}
-	decoder := json.NewDecoder(resp.Body)
-	err = decoder.Decode(&resources)
-	if err != nil {
-		return nil, err
-	}
-
-	return &resources, nil
-}
-
-type OrgRequestBuilder struct {
-	v1 *V1
-}
-
-func (b *OrgRequestBuilder) GetAll() (*[]StaroidOrg, error) {
-	client := b.v1.HttpClient()
-	req, err := b.v1.NewGetRequest("/orgs/")
-	if err != nil {
-		return nil, err
-	}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	// parse json response
-	orgs := make([]StaroidOrg, 0)
-	decoder := json.NewDecoder(resp.Body)
-	err = decoder.Decode(&orgs)
-	if err != nil {
-		return nil, err
-	}
-
-	return &orgs, nil
+	return fmt.Errorf("%d", resp.StatusCode)
 }

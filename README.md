@@ -16,6 +16,35 @@ export STAROID_ACCESS_TOKEN=xxxxxxxxxx
 starctl cluster list
 ```
 
+### Namespace
+
+```
+# list all namespaces in the clusuter
+starctl namespace -org <org> -cluster <cluster> list
+
+# create a namespace
+starctl namespace -org <org> -cluster <cluster> -wait create <alias>
+
+# delete a namespace
+starctl namespace -org <org> -cluster <cluster> -wait delete <alias>
+
+# stop all deployments/pods/jobs in namespace (but keep configmaps, secrets)
+starctl namespace -org <org> -cluster <cluster> -wait stop <alias>
+
+# bring all deployment/pod/job back online 
+starctl namespace -org <org> -cluster <cluster> -wait start <alias>
+```
+
+### Shell
+
+```
+# Start a shell service in the namespace
+starctl shell -org <org> -cluster <cluster> start <alias>
+
+# Stop a shell service in the namespace
+starctl shell -org <org> -cluster <cluster> stop <alias>
+```
+
 ### Tunnel
 
 ```

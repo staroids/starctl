@@ -8,7 +8,6 @@ import (
 
 	chclient "github.com/jpillora/chisel/client"
 	"github.com/staroids/starctl/pkg/constants"
-	corev1 "k8s.io/api/core/v1"
 )
 
 func TunnelCmdUsage(flagSet *flag.FlagSet) {
@@ -78,18 +77,10 @@ func TunnelCmd(args []string) {
 		os.Exit(1)
 	}
 
-	resources, err := staroidClient.V1().Namespace().WithName(namespace.Namespace).GetAllResources()
+	shellService, err := staroidClient.V1().Namespace().WithName(namespace.Namespace).GetShellService()
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		os.Exit(1)
-	}
-
-	var shellService *corev1.Service = nil
-	for _, service := range resources.Services.Items {
-		if service.ObjectMeta.Labels[constants.K8S_LABEL_KEY_RESOURCE_SYSTEM] == constants.K8S_LABEL_VALUE_RESOURCE_SYSTEM_SHELL {
-			shellService = &service
-			break
-		}
 	}
 
 	if shellService == nil {
