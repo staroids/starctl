@@ -2,10 +2,6 @@
 
 CLI for staroid.com, cloud platform based on Kubernetes that funds open-source developers.
 
-## Download
-
-TBD
-
 ## Usage
 
 ### Cluster
