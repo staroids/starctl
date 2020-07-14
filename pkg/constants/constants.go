@@ -10,4 +10,7 @@ const (
 
 	K8S_LABEL_KEY_RESOURCE_SYSTEM         = "resource.staroid.com/system"
 	K8S_LABEL_VALUE_RESOURCE_SYSTEM_SHELL = "shell"
+
+	StatusPollingIntervalSec = 5
+	NsStartTimeoutSec        = 10 * 60
 )
