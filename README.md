@@ -2,6 +2,10 @@
 
 CLI for staroid.com, cloud platform based on Kubernetes that funds open-source developers.
 
+## Download
+
+https://github.com/staroids/starctl/releases
+
 ## Usage
 
 ### Cluster
